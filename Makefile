@@ -1,32 +1,28 @@
 # Main Makefile
 
-# Define subdirectories
+# Define subdirectories looks better in my opnion
 Q1 = Question_1
 Q2 = Question_2
 Q3 = Question_3
 Q4 = Question_4
 Q5 = Question_5
 Q6 = Question_6
+
 # List of subdirectories
 SUBDIRS = $(Q1) $(Q2) $(Q3) $(Q4) $(Q5) $(Q6)
 # Default target
 all: $(SUBDIRS)
 
-# Phony targets
+# Phony cause PHONY
 .PHONY: all $(SUBDIRS) clean
 
-all: $(SUBDIRS)
-
-# Phony targets to avoid conflicts with files of the same name
-.PHONY: all $(SUBDIRS) clean
-
-# Target for each subdirectory
+# make for each subdirectory
 $(SUBDIRS):
 	$(MAKE) -C $@
 
-# Clean target
+# Use all the subdrectories cleans
 clean:
 	for dir in $(SUBDIRS); do \
 	    $(MAKE) -C $$dir clean; \
 	done
-# pretty sure top is done and not donefi
+

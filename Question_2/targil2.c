@@ -13,7 +13,7 @@ int factorial (int n){ //classing function factorial rec
 void poi(int k, int delta){
     double top = pow(delta, k) * expf(-delta); // the second expression give me a double 
     int bottom = factorial(k);
-    printf("%f", top/bottom); //will produce float number, so I need to use %f
+    printf("%f", top/bottom); //will produce float number
 }
 
 int main (int argc, char *argv[]){

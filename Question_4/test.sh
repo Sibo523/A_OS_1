@@ -1,36 +1,63 @@
 #!/bin/bash
-# means that there's no edge between the two vertices
 
-# I get the row col, 
-# then get the input into the matrix 
-# then I get the start vertex
+# Function to run dijkstra with input from stdin and capture output
+run_dijkstra() {
+    # Run dijkstra and capture its output
+    output=$(./dijkstra)
 
-# this test provide a valid input for the program, and it should return the shortest path from the start vertex to all other vertices
+    # Print the output for debugging (optional)
+    echo "$output"
+
+    # Validate the output (example: check if it contains "Shortest paths:")
+    if [[ $output == *"Shortest paths:"* ]]; then
+        echo "Test passed: Shortest paths found "
+        for ((i=0; i<150; i++)); do
+            echo -n "*"
+        done
+        echo  # Add a newline at the end
+
+    else
+        echo "Program existed: Shortest paths not found "
+        for ((i=0; i<150; i++)); do
+            echo -n "*"
+        done
+        echo  # Add a newline at the end
+    fi
+}
+
+# Test case 1: Valid input for the program should run on all lines that doesn't exit
 echo "4 4
 0 10 2147483647 30
 2147483647 0 50 2147483647
 2147483647 2147483647 0 20
 2147483647 2147483647 10 0
-1" | ./dijkstra
+1" | run_dijkstra
 
-# Run with a graph having too many edges
+# Test case 2: Graph with too many edges
 echo "3 3 
-0 10 20 30
-0" | ./dijkstra
+0 10 20 30 20 30 50 2 3 4
+0" | run_dijkstra
 
-# Run with a graph having negative weights
+# Test case 3: Graph with negative weights
 echo "3 3
 0 10 -5
 2147483647 0 20
 2147483647 2147483647 0
-0" | ./dijkstra
+0" | run_dijkstra
 
-# Run with an invalid start vertex
+# Test case 4: Invalid start vertex
 echo "3 3
 0 10 20
 2147483647 0 20
 2147483647 2147483647 0
--1" | ./dijkstra
+-1" | run_dijkstra
 
-# Run with zero vertices to exit
-echo "0" | ./dijkstra
+# Test case 5: Zero vertices (exit)
+echo "-2 -3" | run_dijkstra
+
+# Test case 6: non int source (exit)
+echo "3 3
+0 10 20
+2147483647 0 20
+2147483647 2147483647 0
+A" | run_dijkstra

@@ -16,8 +16,9 @@ int minDistance(int dist[], bool sptSet[],int len)
 void printSolution(int dist[],int len)
 {
 	printf("Vertex \t\t Distance from Source\n");
-	for (int i = 0; i < len; i++)
-		printf("%d \t\t\t\t %d\n", i, dist[i]);
+	for (int i = 0; i < len; i++){
+		printf("%d \t\t\t\t %d\n", i, dist[i]); // \t is a tab (4 spaces)
+	}
 }
 
 // Function that implements Dijkstra's single source
@@ -90,6 +91,7 @@ void dijkstra(int row,int col,int graph[row][col], int src)
 	}
 
 	// print the constructed distance array
+	printf("Shortest paths:");
 	printSolution(dist,row);
 }
 
@@ -103,18 +105,26 @@ void getInputForAdjacencyMatrix(int row, int col, int graph[row][col]) {
     }
 }
 int main() {
-    int row, col;
-    printf("Enter the number of rows and columns of the adjacency matrix: ");
-    scanf("%d%d", &row, &col);
-    printf("row: %d, col: %d\n", row, col);
+    int row = -1, col = -1;
+
+	printf("Enter the number of rows and columns of the adjacency matrix: ");
+    if (scanf("%d%d", &row, &col) != 2 || row <= 0 || col <= 0) {
+        printf("Invalid input: Number of rows and columns must be positive integers.\n");
+        return -1;
+    }
 
     int graph[row][col];
+	printf("Enter the adjacency matrix:\n");
     getInputForAdjacencyMatrix(row, col, graph);
     
     int src;
-    printf("Enter the source vertex: ");
-    scanf("%d", &src);
-    
+
+	printf("Enter the source vertex: ");
+    if (scanf("%d", &src) != 1) {
+        printf("Invalid input: Source vertex must be an integer.\n");
+        return 1;
+    }
+
     dijkstra(row, col, graph, src);
     
     return 0;
