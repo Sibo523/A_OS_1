@@ -17,4 +17,3 @@ void maxsubarray(int seed, int n)
     }
     printf("The best sum is: %d\n", best);
 }
-// lemur
