@@ -35,4 +35,4 @@ run: all
 clean:
 	rm -f $(VARIANTS) *.o gmon.out 
 #	rm -rf $(PROFILE_DIR)/* 
-#	^Depends if I want to keep the profiling files or not!
+#	^Depends if I want to keep the profiling files or not!/
