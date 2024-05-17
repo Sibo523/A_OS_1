@@ -5,36 +5,34 @@ TARGET = main
 HEADER = header.h
 
 CC = gcc
-all: _q_n _q_n^2 _q_n^3
-# Define compiler flags for debugging and profiling
 Flags = -Wall -pg -Wextra -lm
 
-# Rule to compile each .cpp file into an object file
+# Define variants
+VARIANTS = _q_n _q_n2 _q_n3
+SIZES = 100 1000 10000
+PROFILE_DIR = Profiling
+all: $(VARIANTS)
+
+
+# Rule to compile each variant of main executable
+$(VARIANTS): %: main.o %.o
+	$(CC) $(Flags) -o $@ $^
+
+# Rule to compile each .c file into an object file
 %.o: %.c $(HEADER)
 	$(CC) $(Flags) -c -o $@ $<
 
-# Rule to compile each variant of main executable
-_q_n: main.o q_n.o
-	$(CC) $(Flags) -o $@ $^
+run: all
+	@for variant in $(VARIANTS); do \
+		for size in $(SIZES); do \
+			./$$variant 420 $$size; \
+			gprof $$variant gmon.out > $(PROFILE_DIR)/$${variant}_profile_$${size}; \
+			rm -f gmon.out; \
+		done \
+	done
 
-_q_n^2: main.o q_n^2.o
-	$(CC) $(Flags) -o $@ $^
-
-_q_n^3: main.o q_n^3.o
-	$(CC) $(Flags) -o $@ $^
-run: all3
-	./_q_n 4 10000
-	gprof _q_n gmon.out > _q_n_profile.txt
-	rm -f gmon.out
-
-	./_q_n2 4 100
-	gprof _q_n2 gmon.out > _q_n2_profile.txt
-	rm -f gmon.out
-
-	./_q_n3 4 100
-	gprof _q_n3 gmon.out > _q_n3_profile.txt
-	rm -f gmon.out
 .PHONY: clean
 clean:
-	rm -f _q_n* *.o gmon.out
-
+	rm -f $(VARIANTS) *.o gmon.out 
+#	rm -rf $(PROFILE_DIR)/* 
+#	^Depends if I want to keep the profiling files or not!

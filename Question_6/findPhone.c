@@ -4,14 +4,14 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-void usage(const char *prog_name) {
-    fprintf(stderr, "Usage: %s \"Name\"\n", prog_name);
+void erry(const char *prog_name) {
+    fprintf(stderr, "Erry: %s \"Name\"\n", prog_name); // what you should do
     exit(EXIT_FAILURE);
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        usage(argv[0]);
+   if (argc > 3 || argc == 1) { 
+       erry(argv[0]);
     }
 
     int pipe1[2];
@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    if (fork() == 0) {
+    if (fork() == 0) { //god is good 
         // First child process: `cat phonebook.txt`
         close(pipe1[0]);
         dup2(pipe1[1], STDOUT_FILENO);
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
         // Fourth child process: `awk '{print $2}'`
         dup2(pipe3[0], STDIN_FILENO);
         close(pipe3[0]);
-        execlp("awk", "awk", "{print $2}", (char *)NULL);
+        execlp("awk", "awk", "{print $3}", (char *)NULL);
         perror("execlp awk");
         exit(EXIT_FAILURE);
     }
