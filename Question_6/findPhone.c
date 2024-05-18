@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -7,19 +6,18 @@
 
 // Something ain't right
 void Erry(char *progName) {
-    fprintf(stderr, "Err: %s \"Name\"\n", progName);
+    fprintf(stderr, "Err: %s \"Name\" [\"Additional Name\"]\n", progName);
     exit(EXIT_FAILURE);
 }
 
 int main(int argc, char *argv[]) {
     // Verify command-line arguments
-    //you can enter first name, if you want you can also add last name but it doesn't use it to parse
     if (argc != 2 && argc != 3) {
         Erry(argv[0]);
     }
 
     // Create pipes for inter-process communication
-    int inputPipe[2], filterPipe[2], transformPipe[2];
+    int inputPipe[2], filterPipe[2], intermediatePipe[2], transformPipe[2];
 
     // Setup the first pipe
     if (pipe(inputPipe) == -1) {
@@ -47,8 +45,8 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    // Create the second child process to filter entries by name
-    if (fork() == 0) {
+    // Create the second child process to filter entries by the first name
+    if (fork() == 0) { // the first filter 
         // Redirect stdin to inputPipe's read-end and stdout to filterPipe's write-end
         close(filterPipe[0]); // Close unused read-end
         dup2(inputPipe[0], STDIN_FILENO);
@@ -64,13 +62,41 @@ int main(int argc, char *argv[]) {
     close(inputPipe[0]); // Close read-end in parent process
     close(filterPipe[1]); // Close write-end in parent process
 
+    if (argc == 3) { // he second filter with the last name
+        // Setup an intermediate pipe for additional filtering
+        if (pipe(intermediatePipe) == -1) {
+            perror("Failed to create intermediatePipe");
+            exit(EXIT_FAILURE);
+        }
+
+        // Create the third child process to filter entries by the second name
+        if (fork() == 0) {
+            // Redirect stdin to filterPipe's read-end and stdout to intermediatePipe's write-end
+            close(intermediatePipe[0]); // Close unused read-end
+            dup2(filterPipe[0], STDIN_FILENO);
+            close(filterPipe[0]); // Close the read-end after duplication
+            dup2(intermediatePipe[1], STDOUT_FILENO);
+            close(intermediatePipe[1]); // Close the write-end after duplication
+
+            // Execute 'grep' to filter entries
+            execlp("grep", "grep", argv[2], NULL); // appply the second filter (last name)
+            perror("Execution of 'grep' failed");
+            exit(EXIT_FAILURE);
+        }
+        close(filterPipe[0]); // Close read-end in parent process
+        close(intermediatePipe[1]); // Close write-end in parent process
+
+        // Use intermediatePipe for further processing
+        filterPipe[0] = intermediatePipe[0];
+    }
+
     // Setup the third pipe
     if (pipe(transformPipe) == -1) {
         perror("Failed to create transformPipe");
         exit(EXIT_FAILURE);
     }
 
-    // Create the third child process to replace commas with spaces
+    // Create the fourth child process to replace commas with spaces
     if (fork() == 0) {
         // Redirect stdin to filterPipe's read-end and stdout to transformPipe's write-end
         close(transformPipe[0]); // Close unused read-end
@@ -87,7 +113,7 @@ int main(int argc, char *argv[]) {
     close(filterPipe[0]); // Close read-end in parent process
     close(transformPipe[1]); // Close write-end in parent process
 
-    // Create the fourth child process to extract the phone number
+    // Create the fifth child process to extract the phone number
     if (fork() == 0) {
         // Redirect stdin to transformPipe's read-end
         dup2(transformPipe[0], STDIN_FILENO);
