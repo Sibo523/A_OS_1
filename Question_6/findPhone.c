@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    // Create the fourth child process to replace commas with spaces
+    // Create the fourth child process to replace spaces with # and then commas with spaces
     if (fork() == 0) {
         // Redirect stdin to filterPipe's read-end and stdout to transformPipe's write-end
         close(transformPipe[0]); 
@@ -106,7 +106,7 @@ int main(int argc, char *argv[]) {
         close(transformPipe[1]); 
 
         // Execute 'sed' to replace commas with spaces
-        execlp("sed", "sed", "s/,/ /g", NULL);
+        execlp("sed", "sed", "-e", "s/ /#/g", "-e", "s/,/ /g", NULL); // as instructed
         perror("Execution of 'sed' failed");
         exit(EXIT_FAILURE);
     }
@@ -120,7 +120,7 @@ int main(int argc, char *argv[]) {
         close(transformPipe[0]); 
 
         // Execute 'awk' to print the third field
-        execlp("awk", "awk", "{print $3}", NULL);
+        execlp("awk", "awk", "{print $2}", NULL);
         perror("Execution of 'awk' failed");
         exit(EXIT_FAILURE);
     }
