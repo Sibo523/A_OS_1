@@ -29,12 +29,12 @@ clean:
 	rm -f $(TARGET) $(OBJS) *.gcno *.gcda *.gcov dijk
 
 # Rule to run gcov for code coverage
-coverage: all
+cov: all
 #use the vvvv if it doesn't work
 # chmod +x test.sh
 	./test.sh
 	gcov $(SRCS)
-# cat dijkstra.c.gcov 
+# 	cat dijkstra.c.gcov 
 # 	^^^This is to see the coverage of the code
 
 # Explanation: technicaly at the start I needed it but now I don't need so if you have a problem you can use this :)

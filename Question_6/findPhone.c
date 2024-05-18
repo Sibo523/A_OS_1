@@ -11,7 +11,7 @@ void Erry(char *progName) {
 }
 
 int main(int argc, char *argv[]) {
-    // Verify command-line arguments should have 2 or 3 arguments
+    // Verify command-line argument has 2 or 3 arguments
     if (argc != 2 && argc != 3) {
         Erry(argv[0]);
     }

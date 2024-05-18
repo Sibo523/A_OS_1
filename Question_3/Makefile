@@ -1,6 +1,6 @@
 CC = gcc
 Flags = -Wall -g -Wextra
-LIBS = -L. -lpoisson -lm # Add -lm to link against the math library
+LIBS = -L. -lpoisson -lm 
 
 all: main libpoisson.so
 

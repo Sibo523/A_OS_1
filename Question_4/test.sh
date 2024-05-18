@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Function to run dijkstra with input from stdin and capture output
 run_dijkstra() {
     # Run dijkstra and capture its output
