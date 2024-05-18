@@ -9,7 +9,7 @@ int main()
     for (int i = 0; i < 5; i++) {
         int lambda = array[i][0];
         int k = array[i][1];
-        long double result = poi(k,lambda);
+        long double result = poi(k,lambda); // there's no real reason why last func was void and now is long double
         printf("Poisson(\"k:\" %i, \"lambda:\" %i) = %Le\n", k, lambda, result);
     }
 }
