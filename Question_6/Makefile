@@ -11,6 +11,7 @@ findPhone: findPhone.c
 Input: all
 	chmod +x PhoneBook.sh
 	./PhoneBook.sh
+#enters in input
 
 Phony: clean all 
 clean:
