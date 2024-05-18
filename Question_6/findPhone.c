@@ -1,92 +1,106 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
-void erry(const char *prog_name) {
-    fprintf(stderr, "Erry: %s \"Name\"\n", prog_name); // what you should do
+// Something ain't right
+void Erry(char *progName) {
+    fprintf(stderr, "Err: %s \"Name\"\n", progName);
     exit(EXIT_FAILURE);
 }
 
 int main(int argc, char *argv[]) {
-   if (argc > 3 || argc == 1) { 
-       erry(argv[0]);
+    // Verify command-line arguments
+    //you can enter first name, if you want you can also add last name but it doesn't use it to parse
+    if (argc != 2 && argc != 3) {
+        Erry(argv[0]);
     }
 
-    int pipe1[2];
-    int pipe2[2];
-    int pipe3[2];
-    
-    if (pipe(pipe1) == -1) {
-        perror("pipe1");
+    // Create pipes for inter-process communication
+    int inputPipe[2], filterPipe[2], transformPipe[2];
+
+    // Setup the first pipe
+    if (pipe(inputPipe) == -1) {
+        perror("Failed to create inputPipe");
         exit(EXIT_FAILURE);
     }
 
-    if (fork() == 0) { //god is good 
-        // First child process: `cat phonebook.txt`
-        close(pipe1[0]);
-        dup2(pipe1[1], STDOUT_FILENO);
-        close(pipe1[1]);
-        execlp("cat", "cat", "phonebook.txt", (char *)NULL);
-        perror("execlp cat");
-        exit(EXIT_FAILURE);
-    }
-
-    close(pipe1[1]);
-
-    if (pipe(pipe2) == -1) {
-        perror("pipe2");
-        exit(EXIT_FAILURE);
-    }
-
+    // Create the first child process to read the phonebook
     if (fork() == 0) {
-        // Second child process: `grep "Name"`
-        close(pipe2[0]);
-        dup2(pipe1[0], STDIN_FILENO);
-        close(pipe1[0]);
-        dup2(pipe2[1], STDOUT_FILENO);
-        close(pipe2[1]);
-        execlp("grep", "grep", argv[1], (char *)NULL);
-        perror("execlp grep");
+        // Redirect stdout to inputPipe's write-end
+        close(inputPipe[0]); // Close unused read-end
+        dup2(inputPipe[1], STDOUT_FILENO);
+        close(inputPipe[1]); // Close the write-end after duplication
+
+        // Execute 'cat' to read the phonebook
+        execlp("cat", "cat", "phonebook.txt", NULL);
+        perror("Execution of 'cat' failed");
+        exit(EXIT_FAILURE);
+    }
+    close(inputPipe[1]); // Close write-end in parent process
+
+    // Setup the second pipe
+    if (pipe(filterPipe) == -1) {
+        perror("Failed to create filterPipe");
         exit(EXIT_FAILURE);
     }
 
-    close(pipe1[0]);
-    close(pipe2[1]);
-
-    if (pipe(pipe3) == -1) {
-        perror("pipe3");
-        exit(EXIT_FAILURE);
-    }
-
+    // Create the second child process to filter entries by name
     if (fork() == 0) {
-        // Third child process: `sed 's/,/ /'`
-        close(pipe3[0]);
-        dup2(pipe2[0], STDIN_FILENO);
-        close(pipe2[0]);
-        dup2(pipe3[1], STDOUT_FILENO);
-        close(pipe3[1]);
-        execlp("sed", "sed", "s/,/ /", (char *)NULL);
-        perror("execlp sed");
+        // Redirect stdin to inputPipe's read-end and stdout to filterPipe's write-end
+        close(filterPipe[0]); // Close unused read-end
+        dup2(inputPipe[0], STDIN_FILENO);
+        close(inputPipe[0]); // Close the read-end after duplication
+        dup2(filterPipe[1], STDOUT_FILENO);
+        close(filterPipe[1]); // Close the write-end after duplication
+
+        // Execute 'grep' to filter entries
+        execlp("grep", "grep", argv[1], NULL);
+        perror("Execution of 'grep' failed");
+        exit(EXIT_FAILURE);
+    }
+    close(inputPipe[0]); // Close read-end in parent process
+    close(filterPipe[1]); // Close write-end in parent process
+
+    // Setup the third pipe
+    if (pipe(transformPipe) == -1) {
+        perror("Failed to create transformPipe");
         exit(EXIT_FAILURE);
     }
 
-    close(pipe2[0]);
-    close(pipe3[1]);
-
+    // Create the third child process to replace commas with spaces
     if (fork() == 0) {
-        // Fourth child process: `awk '{print $2}'`
-        dup2(pipe3[0], STDIN_FILENO);
-        close(pipe3[0]);
-        execlp("awk", "awk", "{print $3}", (char *)NULL);
-        perror("execlp awk");
+        // Redirect stdin to filterPipe's read-end and stdout to transformPipe's write-end
+        close(transformPipe[0]); // Close unused read-end
+        dup2(filterPipe[0], STDIN_FILENO);
+        close(filterPipe[0]); // Close the read-end after duplication
+        dup2(transformPipe[1], STDOUT_FILENO);
+        close(transformPipe[1]); // Close the write-end after duplication
+
+        // Execute 'sed' to replace commas with spaces
+        execlp("sed", "sed", "s/,/ /g", NULL);
+        perror("Execution of 'sed' failed");
         exit(EXIT_FAILURE);
     }
+    close(filterPipe[0]); // Close read-end in parent process
+    close(transformPipe[1]); // Close write-end in parent process
 
-    close(pipe3[0]);
+    // Create the fourth child process to extract the phone number
+    if (fork() == 0) {
+        // Redirect stdin to transformPipe's read-end
+        dup2(transformPipe[0], STDIN_FILENO);
+        close(transformPipe[0]); // Close the read-end after duplication
 
-    // Wait for all child processes to finish
+        // Execute 'awk' to print the third field
+        execlp("awk", "awk", "{print $3}", NULL);
+        perror("Execution of 'awk' failed");
+        exit(EXIT_FAILURE);
+    }
+    close(transformPipe[0]); // Close read-end in parent process
+
+    // Wait for all child processes to complete
     while (wait(NULL) > 0);
 
     return 0;
