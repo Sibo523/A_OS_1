@@ -26,30 +26,29 @@ run_dijkstra() {
 }
 
 # Test case 1: Valid input for the program should run on all lines that doesn't exit
-echo "4 4
-0 10 2147483647 30
-2147483647 0 50 2147483647
-2147483647 2147483647 0 20
-2147483647 2147483647 10 0
+echo "3 3
+0 10 21
+4 0 17
+19 3 0
 1" | run_dijkstra
 
 # Test case 2: Graph with too many edges
 echo "3 3 
-0 10 20 30 20 30 50 2 3 4
+0 10 20 30 20 30 50 2 3 4 
 0" | run_dijkstra
 
 # Test case 3: Graph with negative weights
 echo "3 3
 0 10 -5
-2147483647 0 20
-2147483647 2147483647 0
+15 0 20
+7 9 0
 0" | run_dijkstra
 
 # Test case 4: Invalid start vertex
 echo "3 3
 0 10 20
-2147483647 0 20
-2147483647 2147483647 0
+15 0 20
+7 9 0
 -1" | run_dijkstra
 
 # Test case 5: Zero vertices (exit)
@@ -58,6 +57,6 @@ echo "-2 -3" | run_dijkstra
 # Test case 6: non int source (exit)
 echo "3 3
 0 10 20
-2147483647 0 20
-2147483647 2147483647 0
+15 0 20
+7 9 0
 A" | run_dijkstra
