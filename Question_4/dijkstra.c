@@ -115,7 +115,7 @@ int main() {
 
     int graph[row][col];
 	printf("Enter the adjacency matrix:\n");
-    getInputForAdjacencyMatrix(row, col, graph);
+    getInputForAdjacencyMatrix(row, col, graph); // get the adjacency matrix from the user with scanf
     
     int src;
 
