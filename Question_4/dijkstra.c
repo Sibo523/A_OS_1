@@ -53,11 +53,11 @@ void dijkstra(int row, int col, int graph[row][col], int src)
 	}
 
 	int dist[row]; // The output array. dist[i] will hold the
-				   // shortest
+					// shortest
 	// distance from src to i
 
 	bool sptSet[row]; // sptSet[i] will be true if vertex i is
-					  // included in shortest
+						// included in shortest
 	// path tree or shortest distance from src to i is
 	// finalized
 
