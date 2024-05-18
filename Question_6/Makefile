@@ -8,6 +8,10 @@ add2PB: add2PB.c
 findPhone: findPhone.c
 	$(CC) $(Flags) -o $@ $^
 
+Input: all
+	chmod +x PhoneBook.sh
+	./PhoneBook.sh
+
 Phony: clean all 
 clean:
 	rm -f add2PB findPhone

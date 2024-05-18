@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    fprintf(file, "%s %s,%s \n", argv[1], argv[2],argv[3]); // write the new person to the phonebook
+    fprintf(file, "%s %s,%s \n\n", argv[1], argv[2],argv[3]); // write the new person to the phonebook
     fclose(file); 
 
     return 0;
